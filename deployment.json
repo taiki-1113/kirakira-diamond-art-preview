@@ -1,6 +1,9 @@
 {
   "repository": "taiki-1113/kirakira-diamond-art",
   "source_branch": "chore/initial-project-setup",
-  "source_commit": "17347b73fd8526442a9876be25b6614a02436823",
-  "works": 3
+  "source_base_commit": "c93c496c965d0c1077bd342476622ed10948a392",
+  "includes_local_source_changes": true,
+  "works": 3,
+  "rabbit_layout": "v2",
+  "catalog_sha256": "e733169affd95d5cf425f48eec3ace990555339c555a15e6c3d361d8a633122d"
 }
