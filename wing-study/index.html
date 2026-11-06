@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ユニコーンの翼・粒の構造見本</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#faf4fb;color:#624570;font-family:"Yu Gothic","Hiragino Sans",sans-serif}
+main{max-width:1120px;margin:auto;padding:24px}
+h1{font-size:clamp(21px,3.5vw,30px);margin:0 0 8px}
+.intro{line-height:1.8;margin:0 0 22px}
+.comparison{display:grid;grid-template-columns:1fr 1.6fr;gap:20px;align-items:start}
+section{background:#fff;border:1px solid #e4d7ea;border-radius:24px;overflow:hidden}
+h2{font-size:17px;margin:18px 20px 6px}
+.reference{display:block;width:100%;max-height:420px;object-fit:contain;padding:28px}
+.caption{font-size:14px;line-height:1.8;margin:12px 20px 20px}
+.board{background:radial-gradient(ellipse at 50% 42%,#fff,#f3f2fc)}
+canvas{display:block;width:100%;aspect-ratio:560/540;touch-action:manipulation}
+.status{display:flex;justify-content:space-between;gap:10px;padding:0 20px 16px;font-size:14px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;padding:18px 20px;border-top:1px solid #eee3f1}
+button{font:inherit;color:#624570;background:#f8eff9;border:1px solid #d8c4df;border-radius:16px;padding:12px 18px;min-height:48px;cursor:pointer}
+button:focus-visible{outline:3px solid #8064b2;outline-offset:3px}
+button.primary{background:#72548e;color:white;border-color:#72548e}
+button:disabled{opacity:.5;cursor:default}
+.note{padding:16px 2px;margin:0;font-size:14px;line-height:1.8}
+@media(max-width:700px){main{padding:16px}.comparison{grid-template-columns:1fr}.reference{max-height:210px;padding:14px}.caption{margin-bottom:14px}}
+</style>
+<main>
+  <h1>ユニコーンの翼・粒の構造見本</h1>
+  <p class="intro">新しい翼の薄い粒をタップしてください。置いた粒だけ、光沢が戻ります。</p>
+  <div class="comparison">
+    <section>
+      <h2>現在の原画の翼</h2>
+      <img class="reference" src="reference-wing.png" alt="現在のユニコーンの原画から切り出した翼">
+      <p class="caption">今の色合いと、金色のふちを持つ羽の雰囲気を参考にしています。</p>
+    </section>
+    <section>
+      <h2>一粒ずつ組み立てた翼</h2>
+      <div class="board"><canvas id="wing" width="560" height="540" aria-label="薄いビーズをタップして置ける、新しい翼の見本"></canvas></div>
+      <div class="status" aria-live="polite"><span id="count"></span><span>しろのビーズ</span></div>
+      <div class="controls">
+        <button id="five" class="primary">5粒おいて比較</button>
+        <button id="complete">完成を見る</button>
+        <button id="reset">やりなおす</button>
+      </div>
+    </section>
+  </div>
+  <p class="note">翼の形と粒の並びを作り直した部分見本です。薄い粒と置いた粒は、同じ形・同じ位置で重なります。</p>
+</main>
+<script>
+const canvas = document.getElementById('wing');
+const context = canvas.getContext('2d');
+const pearl = new Image();
+const matte = document.createElement('canvas');
+const placed = new Set();
+const beads = [];
+const wing = new Path2D('M90 440 C130 300 262 120 477 62 Q540 40 532 111 C528 149 506 174 479 191 Q528 181 522 225 C518 274 471 304 423 321 Q468 322 451 362 C435 405 353 447 263 479 Q155 522 90 440 Z');
+const radius = 21;
+
+function createBeads() {
+  for (let row = 0; row < 13; row++) {
+    for (let column = 0; column < 13; column++) {
+      const x = 34 + column * 44 + row % 2 * 22;
+      const y = 42 + row * 39;
+      let fits = true;
+      for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 12) {
+        if (!context.isPointInPath(wing, x + Math.cos(angle) * 27, y + Math.sin(angle) * 27)) fits = false;
+      }
+      if (fits) beads.push({ x, y });
+    }
+  }
+}
+
+function prepareMatte() {
+  matte.width = pearl.width;
+  matte.height = pearl.height;
+  const paint = matte.getContext('2d');
+  paint.drawImage(pearl, 0, 0);
+  const image = paint.getImageData(0, 0, matte.width, matte.height);
+  const data = image.data;
+  for (let index = 0; index < data.length; index += 4) {
+    const light = .2126 * data[index] + .7152 * data[index + 1] + .0722 * data[index + 2];
+    const soft = 205 + .42 * (light - 205) - .23 * Math.max(0, light - 220);
+    for (let channel = 0; channel < 3; channel++) {
+      data[index + channel] = soft + .64 * (data[index + channel] - light);
+    }
+  }
+  paint.putImageData(image, 0, 0);
+}
+
+function render() {
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = 560 * ratio;
+  canvas.height = 540 * ratio;
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  const blue = context.createLinearGradient(80, 480, 500, 80);
+  blue.addColorStop(0, '#d9eefb');
+  blue.addColorStop(1, '#abd8f3');
+  context.fillStyle = blue;
+  context.fill(wing);
+  context.strokeStyle = '#d9aa45';
+  context.lineWidth = 12;
+  context.stroke(wing);
+  context.strokeStyle = '#fff2ba';
+  context.lineWidth = 5;
+  context.stroke(wing);
+  beads.forEach((bead, index) => {
+    context.drawImage(placed.has(index) ? pearl : matte,
+      bead.x - radius, bead.y - radius, radius * 2, radius * 2);
+  });
+  document.getElementById('count').textContent = placed.size + ' / ' + beads.length + ' 粒';
+  document.getElementById('five').disabled = placed.size === beads.length;
+}
+
+canvas.addEventListener('click', event => {
+  const box = canvas.getBoundingClientRect();
+  const x = (event.clientX - box.left) * 560 / box.width;
+  const y = (event.clientY - box.top) * 540 / box.height;
+  const index = beads.findIndex(bead => Math.hypot(bead.x - x, bead.y - y) <= radius);
+  if (index >= 0) { placed.add(index); render(); }
+});
+document.getElementById('five').onclick = () => {
+  let added = 0;
+  for (let index = 0; index < beads.length && added < 5; index++) {
+    if (!placed.has(index)) { placed.add(index); added++; }
+  }
+  render();
+};
+document.getElementById('complete').onclick = () => {
+  beads.forEach((_, index) => placed.add(index));
+  render();
+};
+document.getElementById('reset').onclick = () => { placed.clear(); render(); };
+pearl.onload = () => { createBeads(); prepareMatte(); render(); };
+pearl.onerror = () => { document.getElementById('count').textContent = 'ビーズ画像を読み込めませんでした。開き直してください。'; };
+pearl.src = 'pearl.png';
+</script>
+</html>
