@@ -5,5 +5,6 @@
   "includes_local_source_changes": true,
   "works": 3,
   "rabbit_layout": "v2",
-  "catalog_sha256": "3a54da393ea815409d42fcd8b3b0b8591a765c9d74d3f9b5bbed5235ccea27d6"
+  "catalog_sha256": "146047951ef3a417a5f9af1028d6e600b822d8c7e55b3d2a2f33c828dcb34382",
+  "unicorn_layout": "v2"
 }
