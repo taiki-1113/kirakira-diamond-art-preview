@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ユニコーン全体・独立ビーズの見本</title>
+<link rel="stylesheet" href="style.css">
+<main>
+  <header><div><span class="eyebrow">ユニコーン全体の見本</span><h1>かわいさと、粒の収まりを比べる</h1></div><a href="../wing-study/">翼の部分見本</a></header>
+  <p class="intro">最初は完成した姿です。「下絵にして試す」で、粒をタップして置けます。</p>
+  <div class="comparison">
+    <section><h2>現在の原画</h2><div class="reference"><img src="assets/reference.png" alt="元のユニコーンの原画"></div></section>
+    <section class="new-picture">
+      <h2>一粒ずつ組み立てた全体見本 <span id="state">準備しています</span></h2>
+      <div class="stage"><canvas id="art" width="1254" height="1254" aria-label="独立したビーズから組み立てたユニコーン。薄い粒をタップして配置できます"></canvas></div>
+      <div class="controls">
+        <button id="try" class="primary" disabled>下絵にして試す</button>
+        <button id="some" disabled>10粒おく</button>
+        <button id="complete" disabled>完成を見る</button>
+      </div>
+      <p class="count" id="count" aria-live="polite"></p>
+    </section>
+  </div>
+  <p class="note">原画の宝石、顔、リボンなどを使いながら、形と粒の並びを再構成した見本です。ゲームへの採用前に、かわいさときれいさを見比べてください。</p>
+</main>
+<script type="module" src="study.js"></script>
+</html>
